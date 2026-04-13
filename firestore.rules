@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "fayem7409@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // Menu Items: Publicly readable, admin writable
+    match /menu/{itemId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Reservations: Users can create, admins can manage
+    match /reservations/{resId} {
+      allow read: if isAdmin();
+      allow create: if true; // Anyone can book
+      allow update, delete: if isAdmin();
+    }
+
+    // Gallery: Publicly readable, admin writable
+    match /gallery/{imgId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Messages: Anyone can send, admin can read/manage
+    match /messages/{msgId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Restaurant Info: Publicly readable, admin writable
+    match /info/{infoId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User profiles (for roles)
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+        (firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         request.auth.token.email == "fayem7409@gmail.com");
+    }
+  }
+}

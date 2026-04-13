@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "Menu Item",
+      "description": "A dish or drink on the restaurant menu",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the dish" },
+        "description": { "type": "string", "description": "Ingredients or details" },
+        "price": { "type": "number", "description": "Price in local currency" },
+        "category": { "type": "string", "enum": ["Entrées", "Plats principaux", "Grillades", "Boissons", "Desserts"] },
+        "imageUrl": { "type": "string", "format": "uri", "description": "Photo of the dish" },
+        "isAvailable": { "type": "boolean", "description": "Whether the item is currently available" }
+      },
+      "required": ["name", "price", "category", "isAvailable"]
+    },
+    "Reservation": {
+      "title": "Reservation",
+      "description": "A table booking request",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Customer name" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string", "format": "time" },
+        "guests": { "type": "integer" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "cancelled"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "date", "time", "guests", "status"]
+    },
+    "GalleryImage": {
+      "title": "Gallery Image",
+      "description": "An image for the restaurant gallery",
+      "type": "object",
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "caption": { "type": "string" },
+        "category": { "type": "string", "enum": ["restaurant", "food", "ambiance", "events"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["url", "category"]
+    },
+    "ContactMessage": {
+      "title": "Contact Message",
+      "description": "A message from the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "RestaurantInfo": {
+      "title": "Restaurant Info",
+      "description": "General information about the restaurant",
+      "type": "object",
+      "properties": {
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "email": { "type": "string" },
+        "openingHours": { "type": "object" },
+        "description": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/menu": { "schema": "MenuItem", "description": "Collection of menu items" },
+    "/reservations": { "schema": "Reservation", "description": "Collection of table bookings" },
+    "/gallery": { "schema": "GalleryImage", "description": "Collection of gallery images" },
+    "/messages": { "schema": "ContactMessage", "description": "Collection of contact form messages" },
+    "/info": { "schema": "RestaurantInfo", "description": "Single document for restaurant info" }
+  }
+}
